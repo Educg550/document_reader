@@ -12,10 +12,13 @@ build:
 run:
 	docker run --name $(CONTAINER_NAME) $(IMAGE_NAME)
 
-.PHONY: clean
-clean:
+.PHONY: stop-container
+stop-container:
 	docker stop $(CONTAINER_NAME) || true
 	docker rm $(CONTAINER_NAME) || true
+
+.PHONY: clean
+clean: stop-container
 	docker image prune -f
 
 .PHONY: clean-all
