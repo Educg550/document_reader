@@ -1,5 +1,7 @@
-pytesseract
-pillow
-easyocr
-keras-ocr
-tensorflow==2.15
+streamlit
+pypdf2
+langchain
+python-dotenv
+faiss-cpu
+openai
+huggingface_hub

@@ -2,7 +2,7 @@ IMAGE_NAME = ocr-image-reader
 CONTAINER_NAME = ocr-container
 
 .PHONY: all
-all: build run
+all: build
 
 .PHONY: build
 build:
@@ -19,6 +19,7 @@ stop-container:
 
 .PHONY: clean
 clean: stop-container
+	docker rmi $(IMAGE_NAME) || true
 	docker image prune -f
 
 .PHONY: clean-all

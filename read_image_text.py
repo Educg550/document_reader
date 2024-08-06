@@ -1,23 +1,32 @@
-from PIL import Image
-import pytesseract
+import streamlit as st
+from dotenv import load_dotenv
+from langchain.text_splitter import CharacterTextSplitter
 
-BASE_PATH = 'images/'
+# Prompt: Based on the following text excerpt from an electricity bill, answer whether the energy company used is ENEL or CEMIG, answer just one or the other. The text is in Portuguese.
 
-image_path = BASE_PATH + 'enel.jpg'
-# image = Image.open(image_path)
-# text = pytesseract.image_to_string(image)
-# print(text)
+# # Textos iniciais estão em /texts
+# def get_existing_text_database():
+#     with open('texts/initial_text.txt', 'r') as file:
+#         data = file.read()
+#     return data
 
-# # Converter texto para minúsculo
-# if 'eletropaulo' in text.lower():
-#     print('Enel is in the text')
+def get_text_chunks(raw_text):
+    text_splitter = CharacterTextSplitter(
+        text=raw_text,
+        max_chunk_size=500,
+        min_chunk_size=300
+    )
 
-# Usando easyocr
-import easyocr
+def main():
+    st.set_page_config(page_title="Detector de Contas de Luz", page_icon="📷")
 
-reader = easyocr.Reader(['en'])
-result = reader.readtext(image_path)
-print(result)
+    st.header("Detector de Contas de Luz :bulb:")
+    st.text("Faça o upload de uma imagem, texto puro ou PDF de uma conta de luz para detectar a companhia de energia.")
 
-if 'eletropaulo' in result[0][1].lower():
-    print('Enel is in the text')
+    with st.sidebar:
+        st.subheader("Seus documentos")
+        uploaded_file = st.file_uploader("Faça o upload de uma imagem, PDF ou texto puro", type=["jpg", "jpeg", "png", "pdf", "txt"], accept_multiple_files=False)
+        st.button("Detectar companhia de energia")
+
+if __name__ == '__main__':
+    main()
