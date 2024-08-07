@@ -10,6 +10,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY read_image_text.py .
+COPY .env .
 COPY images/ images/
 COPY texts/ texts/
 

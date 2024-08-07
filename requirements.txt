@@ -1,9 +1,11 @@
 streamlit
 pypdf2
 langchain
+langchain-community
+langchain-core
 python-dotenv
 faiss-cpu
 openai
 huggingface_hub
 InstructorEmbedding
-sentence_transformers
+sentence_transformers==2.2.2
