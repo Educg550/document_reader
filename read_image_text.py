@@ -1,6 +1,8 @@
 import streamlit as st
 from dotenv import load_dotenv
 from langchain.text_splitter import CharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
 
 # Prompt: Based on the following text excerpt from an electricity bill, answer whether the energy company used is ENEL or CEMIG, answer just one or the other. The text is in Portuguese.
 
@@ -12,13 +14,19 @@ from langchain.text_splitter import CharacterTextSplitter
 
 def get_text_chunks(raw_text):
     text_splitter = CharacterTextSplitter(
-        separator="\n",
+        separator="",
         chunk_size=1000,
         chunk_overlap=200,
         length_function=len
     )
     chunks = text_splitter.split_text(raw_text)
     return chunks
+
+def get_vectorstore(text_chunks):
+    embeddings = OpenAIEmbeddings()
+    vector_store = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
+    return vector_store
+
 
 def main():
     st.set_page_config(page_title="Detector de Contas de Luz", page_icon="📷")
@@ -36,7 +44,8 @@ def main():
                     raw_text = bytes_text.decode("utf-8")
 
                     text_chunks = get_text_chunks(raw_text)
-                    st.write(text_chunks)
+                    
+                    vector_store = get_vectorstore(text_chunks)
                 else:
                     st.error("Nenhum arquivo foi enviado")
 
