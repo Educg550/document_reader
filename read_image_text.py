@@ -1,16 +1,13 @@
 import streamlit as st
 from dotenv import load_dotenv
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.vectorstores import FAISS
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationalRetrievalChain
 
 # Prompt: Based on the following text excerpt from an electricity bill, answer whether the energy company used is ENEL or CEMIG, answer just one or the other. The text is in Portuguese.
-
-# # Textos iniciais estão em /texts
-# def get_existing_text_database():
-#     with open('texts/initial_text.txt', 'r') as file:
-#         data = file.read()
-#     return data
 
 def get_text_chunks(raw_text):
     text_splitter = CharacterTextSplitter(
@@ -23,9 +20,22 @@ def get_text_chunks(raw_text):
     return chunks
 
 def get_vectorstore(text_chunks):
-    embeddings = OpenAIEmbeddings()
+    embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
     vector_store = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vector_store
+
+def get_conversation_chain(vector_store):
+    llm = ChatOpenAI
+    memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
+    conversation_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=vector_store.as_retriever(),
+        memory=memory
+    )
+    return conversation_chain
+
+def handle_company_name(uploaded_file, conversation):
+    response = None
 
 
 def main():
@@ -46,6 +56,12 @@ def main():
                     text_chunks = get_text_chunks(raw_text)
                     
                     vector_store = get_vectorstore(text_chunks)
+
+                    conversation = get_conversation_chain(vector_store)
+
+                    handle_company_name(uploaded_file, conversation)
+
+                    # response = conversation.ask("Based on the following text excerpt from an electricity bill, answer whether the energy company used is ENEL or CEMIG, answer just one or the other. The text is in Portuguese.")
                 else:
                     st.error("Nenhum arquivo foi enviado")
 
