@@ -12,21 +12,33 @@ from langchain.text_splitter import CharacterTextSplitter
 
 def get_text_chunks(raw_text):
     text_splitter = CharacterTextSplitter(
-        text=raw_text,
-        max_chunk_size=500,
-        min_chunk_size=300
+        separator="\n",
+        chunk_size=1000,
+        chunk_overlap=200,
+        length_function=len
     )
+    chunks = text_splitter.split_text(raw_text)
+    return chunks
 
 def main():
     st.set_page_config(page_title="Detector de Contas de Luz", page_icon="📷")
 
     st.header("Detector de Contas de Luz :bulb:")
-    st.text("Faça o upload de uma imagem, texto puro ou PDF de uma conta de luz para detectar a companhia de energia.")
+    st.text("Insira o TXT obtido da conta de luz")
 
     with st.sidebar:
         st.subheader("Seus documentos")
-        uploaded_file = st.file_uploader("Faça o upload de uma imagem, PDF ou texto puro", type=["jpg", "jpeg", "png", "pdf", "txt"], accept_multiple_files=False)
-        st.button("Detectar companhia de energia")
+        uploaded_file = st.file_uploader("Faça o upload de uma imagem, PDF ou texto puro e clique em Detectar", type=["txt"], accept_multiple_files=False)
+        if st.button("Detectar companhia de energia"):
+            with st.spinner("Detectando companhia de energia..."):
+                if uploaded_file is not None:
+                    bytes_text = uploaded_file.read()
+                    raw_text = bytes_text.decode("utf-8")
+
+                    text_chunks = get_text_chunks(raw_text)
+                    st.write(text_chunks)
+                else:
+                    st.error("Nenhum arquivo foi enviado")
 
 if __name__ == '__main__':
     main()

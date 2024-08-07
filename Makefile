@@ -10,7 +10,7 @@ build:
 
 .PHONY: run
 run:
-	docker run --name $(CONTAINER_NAME) $(IMAGE_NAME)
+	docker run -p 8501:8501 --name $(CONTAINER_NAME) $(IMAGE_NAME)
 
 .PHONY: stop-container
 stop-container:
