@@ -3,8 +3,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 import easyocr
-from tqdm import tqdm
-
+from pdf2image import convert_from_path
 
 def get_llm_model():
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
@@ -18,9 +17,20 @@ def get_llm_response(raw_text, conversation):
 
 def which_company(text):
   company_matches = {
-    'enel': {'enei', 'enel', 'eletropaulo', 'eietropaulo', 'eletropauio', 'eietropauio', 'eletropau', 'eietropau'},
-    'cemig': {'cemig', 'cemlg', 'cenig', 'cenlg'}
-  }
+        'enel': {
+            'enel', 'enei', 'eletropaulo', 'eietropaulo', 'eletropauio', 'eietropauio', 'eletropau', 'eietropau',
+            'enl', 'eneel', 'ennel', 'enell', 'elletropaulo', 'eletropaullo', 'eletropaolo', 'eletrpaulo',
+            'eletropaul', 'eletroplauo', 'elrtopaulo', 'eletropalu', 'eletrp', 'elettrp', 'eletorp', 'elettrop',
+            'eneii', 'enniei', 'eneli', 'eneil'
+        },
+        'cemig': {
+            'cemig', 'cemlg', 'cenig', 'cenlg',
+            'cemg', 'cemiig', 'cemigg', 'semig', 'cemigs',
+            'cemige', 'ceemig', 'cemeg', 'cemigee', 'semg',
+            'seemig', 'cemlg', 'cmig', 'cmigg', 'cemmigg',
+            'ceemlg', 'cenmg', 'cenmig', 'cenmigg'
+        }
+    }
   words = set(word.lower() for word in text.split())
   for company, matches in company_matches.items():
     if words & matches:
@@ -38,6 +48,13 @@ def get_text_from_image(file_path):
 def get_text_from_pdf(file_path):
     ocr_reader = easyocr.Reader(['en'])
     # Para cada página, salva em uma subpasta
+    pages = convert_from_path(file_path, 500)
+    result = ""
+    for page in pages:
+        file_name = "data/page" + str(pages.index(page)) + ".png"
+        page.save(file_name, "PNG")
+        result += get_text_from_image(file_name) + "\n"
+    return result
 
 # Retorna: [texto extraído da imagem, predição da companhia de energia por visão computacional]
 def get_vision_response(file_path):
@@ -63,6 +80,10 @@ def main():
     st.header("Detector de Contas de Luz :bulb:")
     st.text("Insira o TXT obtido da conta de luz")
 
+    show_vision = st.checkbox("Solução por visão computacional", value=True)
+    show_llm = st.checkbox("Solução por LLM", value=False)
+    show_raw_text = st.checkbox("Mostrar texto extraído", value=False)
+
     with st.sidebar:
         st.subheader("Seus documentos")
         uploaded_file = st.file_uploader("Faça o upload de uma imagem, PDF ou texto puro e clique em Detectar", type=["txt", "pdf", "jpg", "jpeg", "png"], accept_multiple_files=False)
@@ -82,11 +103,15 @@ def main():
 
                     [raw_text, vision_predict] = get_vision_response(file_path)
                     llm_predict = get_llm_response(raw_text, conversation)
-                    st.write("Predição da companhia de energia por visão computacional: ", vision_predict)
-                    st.write("Predição da companhia de energia pela LLM (Gemini): ", llm_predict)
+                    # Mostrar somente se a checkbox estiver marcada
+                    if show_vision:
+                        st.write("Predição da companhia de energia por visão computacional: ", vision_predict)
+                    if show_llm:
+                        st.write("Predição da companhia de energia pela LLM (Gemini): ", llm_predict)
                 else:
                     st.error("Nenhum arquivo foi enviado")
-    st.write("Texto extraído da imagem: ", raw_text)
+    if show_raw_text:
+        st.write("Texto extraído da imagem: ", raw_text)
 
 if __name__ == '__main__':
     main()
