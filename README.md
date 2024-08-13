@@ -21,12 +21,9 @@ Uma imagem `ocr-image-reader` será criada na sua máquina e um container de mes
 
 Com o container em execução, acesse o endereço `http://localhost:8501` no seu navegador para acessar a interface gráfica feita com Streamlit. Você verá uma página com um campo para upload de arquivos. Os seguintes arquivos são compatíveis:
 
-[X] Texto puro (txt)
-
-A implementar:
-
-[] PDF
-[] Imagens (png, jpg, jpeg)
+- [x] **Texto puro** (`.txt`)
+- [x] **PDF** (`.pdf`)
+- [x] **Imagens** (`.png`, `.jpg`, `.jpeg`)
 
 # Para desenvolvedores
 Após feita uma modificação no código, você pode reconstruir a imagem Docker com o comando:

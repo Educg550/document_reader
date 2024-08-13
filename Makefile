@@ -2,7 +2,7 @@ IMAGE_NAME = ocr-image-reader
 CONTAINER_NAME = ocr-container
 
 .PHONY: all
-all: build run
+all: build
 
 .PHONY: build
 build:
