@@ -1,5 +1,5 @@
 # Document Reader 📷
-Projeto simples para leitura e interpretação de texto de imagens, PDFs e texto puro
+Leitura e interpretação de texto de imagens, PDFs e texto puro
 
 ![preview mockup](https://github.com/user-attachments/assets/e1abed60-fe33-44fe-be8a-2528a8ad05d8)
 
